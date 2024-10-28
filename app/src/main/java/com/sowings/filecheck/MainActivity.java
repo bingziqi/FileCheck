@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
@@ -233,11 +234,13 @@ public class MainActivity extends AppCompatActivity {
         }).setPositiveButton("确定", (dialog, which) -> {
             // 请求权限
             PendingIntent pendingIntent;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, new Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE);
-            } else {
-                pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                flags |= PendingIntent.FLAG_MUTABLE;
             }
+            Intent action = new Intent(ACTION_USB_PERMISSION);
+            action.setPackage("com.sowings.filecheck");
+            pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, action, flags);
             usbManager.requestPermission(chooseItem.getUsbDevice(), pendingIntent);
 //            Toast.makeText(MainActivity.this, chooseItem, Toast.LENGTH_LONG).show();
         }).setNegativeButton("取消", (dialog, which) -> {
